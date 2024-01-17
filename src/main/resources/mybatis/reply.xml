@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "dev.mvc.reply.ReplyDAOInter">
+  <insert id="create" parameterType="dev.mvc.reply.ReplyVO">
+    INSERT INTO reply(replyno, detailno, cyclistno, content, rdate)
+    VALUES(reply_seq.nextval, #{detailno}, #{cyclistno}, #{content}, sysdate)
+  </insert>
+  
+  <!-- 모든 댓글 출력 -->
+  <select id="list" resultType="dev.mvc.reply.ReplyVO">
+    SELECT replyno, detailno, cyclistno, content, rdate
+    FROM reply
+    ORDER BY replyno ASC
+  </select>
+  
+  <!-- 삭제용 읽기 -->
+  <select id="read" resultType = "dev.mvc.reply.ReplyVO" parameterType="int"> 
+    SELECT replyno, detailno, cyclistno, content, rdate
+    FROM reply
+    WHERE replyno = #{replyno}
+  </select>
+  
+
+  <!-- 게시글에 대한 댓글 출력 -->
+  <select id="list_by_detailno" resultType="dev.mvc.reply.ReplyVO" parameterType="int">
+    SELECT replyno, detailno, cyclistno, content, rdate
+    FROM reply
+    WHERE detailno=#{detailno}
+    ORDER BY replyno ASC
+  </select>
+  
+  <!-- id를 포함하여 게시글에 대한 댓글 -->
+  <select id="list_by_detailno_id" resultType="dev.mvc.reply.ReplyCyclistVO" parameterType="int">
+    SELECT c.id,
+               r.replyno, r.detailno, r.cyclistno, r.content, r.rdate
+    FROM cyclist c,  reply r
+    WHERE (c.cyclistno = r.cyclistno) AND r.detailno=#{detailno}
+    ORDER BY r.replyno ASC
+  </select>
+  
+  
+  <!-- 패스워드 없음, 사용자, 관리자일때 수정, 삭제 버튼 활성화되게 만들기-->
+  <!-- <select id="checkPasswd" parameterType="HashMap" resultType="int"> -->
+  <!-- <select id="checkPasswd" parameterType="ReplyVO" resultType="int"> -->
+  <!--   <select id="checkPasswd" parameterType="Map" resultType="int">
+    SELECT COUNT(*) as cnt
+    FROM reply
+    WHERE replyno=#{replyno} AND passwd=#{passwd}
+  </select> -->
+  
+  <!-- 해당 댓글 삭제 -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM reply
+    WHERE replyno=#{replyno}
+  </delete>
+    
+</mapper> 

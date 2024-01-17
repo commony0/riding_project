@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="dev.mvc.detail.DetailDAOInter">
+  <!-- 등록한 레코드 갯수 1 리턴 #{managerno}: public int getManagerno() 자동 실행-->
+  <insert id="create" parameterType="dev.mvc.detail.DetailVO">
+    INSERT INTO detail(detailno, managerno, regionno, title, content, passwd, word,
+                                     file1, file1saved, thumb1, size1, rdate)
+    VALUES(detail_seq.nextval, #{managerno}, #{regionno}, #{title}, #{content}, #{passwd}, #{word},
+                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate)
+  </insert>
+  <!-- 모든 카테고리의 등록된 글목록 -->
+  <select id="list_all" resultType="dev.mvc.detail.DetailVO">
+    SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, passwd, word, rdate,
+               file1, file1saved, thumb1, size1
+    FROM detail
+    ORDER BY detailno DESC
+  </select>
+  
+  <!-- 특정 카테고리의 등록된 글목록 -->
+  <select id="list_by_regionno" resultType="dev.mvc.detail.DetailVO" parameterType="int">
+    SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, rdate,
+              file1, file1saved, thumb1, size1
+    FROM detail 
+    WHERE regionno = #{regionno}
+    ORDER BY detailno DESC
+  </select> 
+  
+  <!-- 일반적인 조회 -->
+  <select id="read" resultType="dev.mvc.detail.DetailVO" parameterType="int">
+    SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, passwd, word, rdate,
+              file1, file1saved, thumb1, size1, map, youtube
+    FROM detail
+    WHERE detailno = #{detailno}
+  </select>
+  
+  <!-- map 등록, 수정, 삭제, 
+         HashMap: VO 클래스는 변수가 너무 많아서 메모리 낭비가 발생함으로,
+                       보통 3개 이하의 적은 변수만 전달하는 경우 HashMap 사용 권장 -->
+  <update id="map" parameterType="HashMap">
+    UPDATE detail SET map=#{map} WHERE detailno=#{detailno}
+  </update>
+  
+  <!-- youtube 등록, 수정, 삭제 HashMap: VO 클래스는 변수가 너무 많아서 메모리 낭비가 발생, 
+                                                      보통 3개 이하의 적은 변수만 전달하는 경우 사용 권장 -->
+  <update id="youtube" parameterType="HashMap">
+    UPDATE detail SET youtube=#{youtube} WHERE detailno=#{detailno}
+  </update>
+  
+  <!-- 카테고리별 검색 목록 -->
+  <select id="list_by_regionno_search" resultType="dev.mvc.detail.DetailVO" parameterType="HashMap">
+    SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, word, rdate,
+            file1, file1saved, thumb1, size1, map, youtube
+    FROM detail
+    <choose>
+      <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+        WHERE regionno=#{regionno}
+      </when>
+      <otherwise> <!-- 검색하는 경우 -->
+        WHERE regionno=#{regionno} AND (UPPER(title) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(content) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(word) LIKE '%' || UPPER(#{word}) || '%')
+      </otherwise>
+    </choose>
+    ORDER BY detailno DESC   
+  </select>
+   
+  <!-- 카테고리별 검색 레코드 갯수 -->
+  <select id="search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt
+    FROM detail
+    <choose>
+      <when test="word == null or word == ''"> <!-- 검색하지 않는 경우의 레코드 갯수 -->
+        WHERE regionno=#{regionno}
+      </when>
+      <otherwise> <!-- 검색하는 경우의 레코드 갯수 -->
+        WHERE regionno=#{regionno} AND (UPPER(title) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(content) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(word) LIKE '%' || UPPER(#{word}) || '%')
+      </otherwise>
+    </choose>
+  </select>
+  
+  <!-- 카테고리별 검색 + 페이징 목록 -->
+  <select id="list_by_regionno_search_paging" resultType="dev.mvc.detail.DetailVO" parameterType="dev.mvc.detail.DetailVO">
+   SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r
+   FROM (
+              SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r
+              FROM (
+                        SELECT detailno, managerno, regionno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube
+                        FROM detail
+                        <choose>
+                          <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+                            WHERE regionno=#{regionno}
+                          </when>
+                          <otherwise>
+                            WHERE regionno=#{regionno} AND (UPPER(title) LIKE '%' || UPPER(#{word}) || '%' 
+                                                              OR UPPER(content) LIKE '%' || UPPER(#{word}) || '%' 
+                                                              OR UPPER(word) LIKE '%' || UPPER(#{word}) || '%')
+                          </otherwise>
+                        </choose>
+                        ORDER BY detailno DESC
+               )
+    )
+    WHERE <![CDATA[ r >= #{start_num} AND r <= #{end_num} ]]>
+     
+    <!-- 1 page: WHERE r >= 1 AND r <= 10; 
+          2 page: WHERE r >= 11 AND r <= 20;
+          3 page: WHERE r >= 21 AND r <= 30; -->
+  </select>
+  
+  <!-- 패스워드 검사 -->
+  <select id="password_check" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt 
+    FROM detail
+    WHERE detailno = #{detailno} AND passwd=#{passwd}
+  </select>
+  
+  <!-- 글 수정 return값 : 1 or 0(성공 or 실패) -->
+  <update id="update_text" parameterType="dev.mvc.detail.DetailVO">
+    UPDATE detail
+    SET title=#{title}, content=#{content},  word=#{word}
+    WHERE detailno = #{detailno}
+  </update>
+  
+  <!-- 파일 수정 -->
+  <update id="update_file" parameterType="dev.mvc.detail.DetailVO">
+    UPDATE detail
+    SET file1=#{file1}, file1saved=#{file1saved}, thumb1=#{thumb1}, size1=#{size1}
+    WHERE detailno = #{detailno}
+  </update>
+  
+  <!-- 글 삭제 기능 -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM detail
+    WHERE detailno=#{detailno}
+  </delete>
+  
+  <!-- 특정 카테고리에 속한 레코드 갯수를 리턴 -->
+  <select id="count_by_regionno" resultType="int" parameterType="int">
+    SELECT COUNT(*) as cnt 
+    FROM detail 
+    WHERE regionno=#{regionno}
+  </select>
+  
+  <!-- 특정 카테고리에 속한 모든 레코드 삭제 -->
+  <delete id="delete_by_regionno" parameterType="int">
+    DELETE FROM detail
+    WHERE regionno=#{regionno}
+  </delete>
+</mapper>

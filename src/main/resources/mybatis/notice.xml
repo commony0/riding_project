@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "dev.mvc.notice.NoticeDAOInter">
+  <insert id="create" parameterType="dev.mvc.notice.NoticeVO">
+    INSERT INTO notice(noticeno, managerno, title, content, rdate)
+    VALUES(notice_seq.nextval, #{managerno}, #{title}, #{content}, sysdate)
+  </insert>
+  
+  <select id="list_all" resultType = "dev.mvc.notice.NoticeVO"> 
+    SELECT noticeno, managerno, title, content, rdate 
+    FROM notice 
+    ORDER BY noticeno DESC
+  </select>
+  
+  <select id="read" resultType = "dev.mvc.notice.NoticeVO" parameterType="int"> 
+    SELECT noticeno, managerno, title, content, rdate
+    FROM notice
+    WHERE noticeno = #{noticeno}
+  </select>
+
+  <update id="update" parameterType="dev.mvc.notice.NoticeVO">
+    UPDATE notice 
+    SET title = #{title}, content = #{content}
+    WHERE noticeno = #{noticeno}
+  </update>
+  
+  <delete id = "delete" parameterType="int">
+   DELETE FROM notice WHERE noticeno=#{noticeno}
+  </delete>
+  
+</mapper>

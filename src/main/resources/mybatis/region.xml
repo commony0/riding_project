@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 자식 XML 태그들은 DAOInter.java interface와 연결 -->
+<mapper namespace="dev.mvc.region.RegionDAOInter"> 
+  <!-- return : 등록한 레코드 갯수 1을 리턴함, parameterType: 전달받는 데이터 -->
+  <insert id = "create" parameterType= "dev.mvc.region.RegionVO">
+    INSERT INTO region(regionno, name, cnt, rdate) 
+    VALUES(region_seq.nextval,#{name}, 0, sysdate)
+  </insert>
+  
+ <!-- 전체 목록, SQL -> RegionVO-> ArrayList<RegionVO> return -->
+  <!-- <select id = "list_all" resultType= "dev.mvc.region.RegionVO">
+    SELECT regionno, name, cnt, rdate FROM region ORDER BY regionno ASC
+  </select> -->
+  
+  <!-- 출력 우선 순위 적용 -->
+<!--   <select id = "list_all" resultType= "dev.mvc.region.RegionVO">
+    SELECT regionno, name, cnt, rdate, seqno FROM region ORDER BY seqno ASC
+  </select> -->
+  
+  <!-- 출력 모드 적용 -->
+  <select id="list_all" resultType = "dev.mvc.region.RegionVO"> 
+    SELECT regionno, name, cnt, rdate, seqno, visible FROM region ORDER BY seqno ASC
+  </select>
+  
+  <!-- 조회, 읽기, SQL -> RegionVO return 수정폼에 사용됨 -->
+  <select id="read" resultType = "dev.mvc.region.RegionVO" parameterType="int"> 
+    SELECT regionno, name, cnt, rdate 
+    FROM region
+    WHERE regionno=#{regionno}
+  </select>
+  
+  <!-- return: 수정한 레코드 갯수를 1을 리턴, parameterType: 수정할 레코드 정보 -->
+  <update id="update"  parameterType="dev.mvc.region.RegionVO" > 
+    UPDATE region
+    SET name=#{name}, cnt=#{cnt}
+    WHERE regionno=#{regionno}
+  </update>
+  
+  <!-- 삭제 return: 삭제한 레코드 갯수를 리턴, parameterType: 삭제할 레코드 정보 -->
+  <delete id = "delete" parameterType="int">
+   DELETE FROM region WHERE regionno=#{regionno}
+  </delete>
+  
+  <!-- 우선 순위 높임, 10 등 -> 1 등 -->
+  <update id="update_seqno_forward" parameterType="int">
+    UPDATE region SET seqno = seqno - 1 WHERE regionno=#{regionno}
+  </update>
+
+  <!-- 우선 순위 낮춤, 1 등 -> 10 등 -->
+  <update id="update_seqno_backward" parameterType="int">
+    UPDATE region SET seqno = seqno + 1 WHERE regionno=#{regionno}
+  </update>
+
+  <!-- 카테고리 공개 설정 -->
+  <update id="update_visible_y" parameterType="int">
+    UPDATE region SET visible='Y' WHERE regionno=#{regionno}
+  </update>
+  
+  <!-- 카테고리 비공개 설정 -->
+  <update id="update_visible_n" parameterType="int">
+    UPDATE region SET visible='N' WHERE regionno=#{regionno}
+  </update>
+  
+  <!-- 비회원/회원 SELECT LIST -->
+  <select id="list_all_y" resultType="dev.mvc.region.RegionVO">
+    SELECT regionno, name, cnt, rdate, seqno, visible 
+    FROM region 
+    WHERE visible='Y'
+    ORDER BY seqno ASC
+  </select>
+
+</mapper>

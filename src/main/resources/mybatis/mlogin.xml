@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- manager의 m -->
+<mapper namespace = "dev.mvc.mlogin.MloginDAOInter">
+  <insert id="create" parameterType="dev.mvc.mlogin.MloginVO">
+    INSERT INTO mlogin(mloginno, managerno, ip, logindate)
+    VALUES (mlogin_seq.nextval, #{managerno}, #{ip}, sysdate)
+  </insert>
+  
+  <select id="list_all" resultType = "dev.mvc.mlogin.MloginVO"> 
+    SELECT mloginno, managerno, ip, logindate
+    FROM mlogin 
+    ORDER BY mloginno DESC
+  </select> 
+  
+  <select id="list_all_m" resultType = "dev.mvc.mlogin.MloginVO" parameterType="int"> 
+    SELECT mloginno, managerno, ip, logindate
+    FROM mlogin
+    WHERE managerno=#{managerno}
+    ORDER BY logindate DESC
+  </select>
+
+  <select id="read" resultType = "dev.mvc.mlogin.MloginVO" parameterType="int"> 
+    SELECT mloginno, managerno, ip, logindate
+    FROM mlogin
+    WHERE mloginno = #{mloginno}
+  </select>
+
+  <delete id = "delete" parameterType="int">
+   DELETE FROM mlogin WHERE mloginno=#{mloginno}
+  </delete> 
+  
+</mapper>

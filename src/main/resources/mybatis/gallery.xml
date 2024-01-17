@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.gallery.GalleryDAOInter">
+  <!-- 등록한 레코드 갯수 1 리턴 #{cyclistno}: public int getCyclistno() 자동 실행-->
+  <insert id="create" parameterType="dev.mvc.gallery.GalleryVO">
+    INSERT INTO gallery(galleryno, cyclistno, title, content, rdate, file1, file1saved, thumb1, size1)
+    VALUES(gallery_seq.nextval, #{cyclistno}, #{title}, #{content}, sysdate, #{file1}, 
+                #{file1saved}, #{thumb1}, #{size1})
+   </insert>
+
+</mapper>

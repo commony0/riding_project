@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- cyclist의 c -->
+<mapper namespace = "dev.mvc.clogin.CloginDAOInter">
+  <insert id="create" parameterType="dev.mvc.clogin.CloginVO">
+    INSERT INTO clogin(cloginno, cyclistno, ip, logindate)
+    VALUES (clogin_seq.nextval, #{cyclistno}, #{ip}, sysdate)
+  </insert>
+  
+  <select id="list_all" resultType = "dev.mvc.clogin.CloginVO"> 
+    SELECT cloginno, cyclistno, ip, logindate
+    FROM clogin 
+    ORDER BY cloginno DESC
+  </select> 
+  
+  <select id="list_all_c" resultType = "dev.mvc.clogin.CloginVO" parameterType="int"> 
+    SELECT cloginno, cyclistno, ip, logindate
+    FROM clogin
+    WHERE cyclistno=#{cyclistno}
+    ORDER BY logindate DESC
+  </select>
+
+  <select id="read" resultType = "dev.mvc.clogin.CloginVO" parameterType="int"> 
+    SELECT cloginno, cyclistno, ip, logindate
+    FROM clogin
+    WHERE cloginno = #{cloginno}
+  </select>
+
+  <delete id = "delete" parameterType="int">
+   DELETE FROM clogin WHERE cloginno=#{cloginno}
+  </delete> 
+  
+</mapper>

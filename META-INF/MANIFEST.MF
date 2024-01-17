@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Main-Class: dev.mvc.riding_v1sbm3c.RidingV1sbm3cApplication
